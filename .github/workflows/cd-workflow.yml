@@ -48,8 +48,8 @@ jobs:
             DOCKER_IMAGE="${{ secrets.DOCKER_IMAGE }}"
             
             echo "✋🏻 Stopping existing container"
-            sudo docker stop medicare-call || true
-            sudo docker rm medicare-call || true
+            sudo docker stop gold-net || true
+            sudo docker rm gold-net || true
 
             echo "📦 Current containers:"
             sudo docker ps -a
@@ -67,18 +67,18 @@ jobs:
             sleep 15
 
             echo "🏥 Health check - Container status"
-            sudo docker ps | grep medicare-call
+            sudo docker ps | grep gold-net
 
             echo "🏥 Health check - Application logs"
-            sudo docker logs --tail 30 medicare-call
+            sudo docker logs --tail 30 gold-net
 
             echo "🏥 Health check - Container health status"
-            if sudo docker ps | grep medicare-call | grep -q "Up"; then
+            if sudo docker ps | grep gold-net | grep -q "Up"; then
               echo "✅ Container is running successfully!"
             else
               echo "❌ Container failed to start properly!"
               echo "📋 Full container logs:"
-              sudo docker logs medicare-call
+              sudo docker logs gold-net
               exit 1
             fi
 
