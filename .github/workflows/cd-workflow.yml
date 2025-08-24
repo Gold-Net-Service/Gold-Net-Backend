@@ -1,0 +1,88 @@
+name: CD with Gradle and Docker
+
+on:
+  push:
+    branches:
+      - 'dev'
+      - 'main'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ☕️ set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          server-id: github
+          settings-path: ${{ github.workspace }}
+
+      - name: 👏🏻 grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: 🐘 build with Gradle (without test)
+        run: ./gradlew clean build -x test --stacktrace
+
+      - name: 🐳 Docker build & push
+        run: |
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }} .
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_IMAGE }}
+
+      - name: 🚀 deploy to server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_KEY }}
+          port: ${{ secrets.EC2_PORT }}
+          script: |
+            DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
+            DOCKER_IMAGE="${{ secrets.DOCKER_IMAGE }}"
+            
+            echo "✋🏻 Stopping existing container"
+            sudo docker stop medicare-call || true
+            sudo docker rm medicare-call || true
+
+            echo "📦 Current containers:"
+            sudo docker ps -a
+
+            echo "🥳 Pulling new image"
+            sudo docker pull ${DOCKER_USERNAME}/${DOCKER_IMAGE}
+
+            echo "이미지명: ${DOCKER_USERNAME}/${DOCKER_IMAGE}"
+
+            echo "🌱 Running new container"
+            sudo docker run -d -p 8080:8080 --name gold-net \
+            "${DOCKER_USERNAME}/${DOCKER_IMAGE}"
+
+            echo "⏳ Waiting for container to start..."
+            sleep 15
+
+            echo "🏥 Health check - Container status"
+            sudo docker ps | grep medicare-call
+
+            echo "🏥 Health check - Application logs"
+            sudo docker logs --tail 30 medicare-call
+
+            echo "🏥 Health check - Container health status"
+            if sudo docker ps | grep medicare-call | grep -q "Up"; then
+              echo "✅ Container is running successfully!"
+            else
+              echo "❌ Container failed to start properly!"
+              echo "📋 Full container logs:"
+              sudo docker logs medicare-call
+              exit 1
+            fi
+
+            echo "🚮 Cleaning up old images"
+            sudo docker image prune -f
+
+            echo "🎉 Deployment completed successfully!"
