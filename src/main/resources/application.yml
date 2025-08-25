@@ -32,12 +32,11 @@ spring:
     #마이그레이션 파일 경로
     locations: classpath:db/migration
 
-#
-#openai:
-#  api:
-#    key: ${OPENAI_API_KEY}
-#    url: ${OPENAI_API_URL}
-#  model: ${OPENAI_API_MODEL}
+
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+    url: ${OPENAI_API_URL}
 
 ---
 spring:
@@ -71,8 +70,7 @@ spring:
     locations: classpath:db/migration
 
 #
-#openai:
-#  api:
-#    key: ${OPENAI_API_KEY}
-#    url: ${OPENAI_API_URL}
-#  model: ${OPENAI_API_MODEL}
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+    url: ${OPENAI_API_URL}

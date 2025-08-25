@@ -1,9 +1,7 @@
 package com.example.GOLDNet.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +9,8 @@ import java.util.List;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Builder
+@AllArgsConstructor
 @Table(name = "job_postings")
 public class JobPosting {
 
@@ -19,16 +19,16 @@ public class JobPosting {
     @Column(name = "job_posting_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String category;
 
     @Column(length = 100)
     private String salaryInfo;
 
-    private String location;
+    private String location; //구 단위
 
     @Column(length = 50)
     private String preferredAgeGroup;
@@ -54,7 +54,7 @@ public class JobPosting {
     private String recruitmentConditions; //모집 조건
 
     @Column(length = 100)
-    private String workRegion; //근무 지역
+    private String workRegion; //근무 상세 지역
 
     @Lob
     private String detailedDescription; //상세 요강
