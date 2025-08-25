@@ -70,7 +70,7 @@ public class CrawlerService {
                     liList = driver.findElements(By.cssSelector("ul#rsList02 > li"));
                     if (liList.isEmpty()) {
                         System.out.println(gu + " - 게시글 없음 (재조회 후)");
-                        break; // 리스트가 비어있으면 루프를 종료합니다.
+                        break; // 리스트가 비어있으면 루프를 종료
                     }
 
                     WebElement li = liList.get(i);
@@ -94,15 +94,15 @@ public class CrawlerService {
                                 ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.tbl-th"))
                         );
 
-                        // 상세 페이지 내의 모든 'tbl-view' 요소를 리스트로 찾습니다.
+                        // 상세 페이지 내의 모든 'tbl-view' 요소를 리스트로 찾기
                         List<WebElement> tblViewList = driver.findElements(By.cssSelector("div.tbl-view"));
 
-                        // 각 'tbl-view' 요소의 내용을 순회하며 가져옵니다.
+                        // 각 'tbl-view' 요소의 내용을 순회하며 가져옴
                         for (WebElement tblView : tblViewList) {
                             String tblViewText = tblView.getText();
                             System.out.println("상세 내용:\n" + tblViewText);
 
-                            // 크롤링 데이터를 저장합니다.
+                            // 크롤링 데이터를 저장
                             Map<String, String> jobInfo = new HashMap<>();
                             jobInfo.put("구", gu);
                             jobInfo.put("상세내용", tblViewText);
