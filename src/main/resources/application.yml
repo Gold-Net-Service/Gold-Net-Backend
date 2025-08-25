@@ -32,13 +32,22 @@ spring:
     #마이그레이션 파일 경로
     locations: classpath:db/migration
 
-#
-#openai:
-#  api:
-#    key: ${OPENAI_API_KEY}
-#    url: ${OPENAI_API_URL}
-#  model: ${OPENAI_API_MODEL}
 
+openai:
+  api:
+    key: ${OPENAI_API_KEY}
+    url: ${OPENAI_API_URL}
+  model: ${OPENAI_API_MODEL}
+
+  ai:
+    openai:
+      # 1단계에서 발급받은 API 키를 여기에 붙여넣으세요.
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          # gpt-4o는 성능과 비용 면에서 매우 효율적인 최신 모델입니다.
+          model: gpt-4o
+          # temperature: 0.2  # 0에 가까울수록 일관성 있는 답변, 1에 가까울수록 창의적인 답변
 ---
 spring:
   config:

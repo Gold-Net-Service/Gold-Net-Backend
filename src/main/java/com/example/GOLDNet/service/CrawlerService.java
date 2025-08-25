@@ -65,17 +65,26 @@ public class CrawlerService {
 
                 String originalHandle = driver.getWindowHandle();
 
-                for (int i = 0; i < liList.size(); i++) {
-                    // StaleElementReferenceException 방지를 위해 루프마다 리스트 재조회
-                    liList = driver.findElements(By.cssSelector("ul#rsList02 > li"));
-                    if (liList.isEmpty()) {
-                        System.out.println(gu + " - 게시글 없음 (재조회 후)");
-                        break; // 리스트가 비어있으면 루프를 종료
+                int totalJobsInGu = driver.findElements(By.cssSelector("ul#rsList02 > li")).size();
+
+                // 2. index 기반으로 안정적인 루프를 실행합니다.
+                for (int i = 0; i < totalJobsInGu; i++) {
+                    // 3. StaleElementReferenceException 방지를 위해 루프마다 리스트와 요소를 '항상' 다시 찾습니다.
+                    List<WebElement> currentLiList = driver.findElements(By.cssSelector("ul#rsList02 > li"));
+
+                    // 리스트가 예상치 못하게 비어있으면 루프를 중단합니다.
+                    if (currentLiList.isEmpty() || i >= currentLiList.size()) {
+                        System.out.println(gu + " - 게시글 목록이 변경되어 루프를 중단합니다.");
+                        break;
                     }
 
-                    WebElement li = liList.get(i);
+                    WebElement li = currentLiList.get(i);
 
-                    WebElement detailLink = li.findElement(By.cssSelector("a[title='상세보기 이동']"));
+                    // '상세보기' 링크가 로딩될 때까지 잠시 기다립니다.
+                    WebDriverWait elementWait = new WebDriverWait(driver, Duration.ofSeconds(5));
+                    WebElement detailLink = elementWait.until(
+                            ExpectedConditions.elementToBeClickable(li.findElement(By.cssSelector("a[title='상세보기 이동']")))
+                    );
                     String href = detailLink.getAttribute("href");
                     ((JavascriptExecutor) driver).executeScript("window.open(arguments[0], '_blank');", href);
 
@@ -97,15 +106,24 @@ public class CrawlerService {
                         // 상세 페이지 내의 모든 'tbl-view' 요소를 리스트로 찾기
                         List<WebElement> tblViewList = driver.findElements(By.cssSelector("div.tbl-view"));
 
-                        // 각 'tbl-view' 요소의 내용을 순회하며 가져옴
+                        // 3개의 상세내용 블록을 하나의 문자열로 합치기 위한 StringBuilder
+                        StringBuilder combinedDetails = new StringBuilder();
+
                         for (WebElement tblView : tblViewList) {
                             String tblViewText = tblView.getText();
-                            System.out.println("상세 내용:\n" + tblViewText);
+                            // 각 블록 사이에 구분선을 넣어줍니다.
+                            combinedDetails.append(tblViewText).append("\n--- 구분선 ---\n");
+                        }
 
-                            // 크롤링 데이터를 저장
+                        // 합쳐진 내용이 있을 경우에만 결과에 추가
+                        if (!combinedDetails.isEmpty()) {
+                            String finalDetails = combinedDetails.toString().trim();
+                            // System.out.println("--- 통합된 상세 내용 ---\n" + finalDetails); // 확인용 로그
+
+                            // 하나의 공고에 대한 정보를 담는 Map 생성
                             Map<String, String> jobInfo = new HashMap<>();
                             jobInfo.put("구", gu);
-                            jobInfo.put("상세내용", tblViewText);
+                            jobInfo.put("상세내용", finalDetails);
                             totalResults.add(jobInfo);
                         }
 
