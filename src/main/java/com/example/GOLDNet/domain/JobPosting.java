@@ -19,10 +19,10 @@ public class JobPosting {
     @Column(name = "job_posting_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
-    @Column(nullable = false)
+    @Column
     private String category;
 
     @Column(length = 100)

@@ -17,10 +17,7 @@ public class JobPostingService {
     private final JobPostingRepository jobPostingRepository;
     private final JobPostingAiParser aiParser; // AI 파서 주입
 
-    /**
-     * 크롤링된 데이터 리스트를 AI로 파싱하고 DB에 저장합니다.
-     * @param crawledDataList 크롤러가 반환한 데이터 리스트
-     */
+
     @Transactional
     public void processAndSaveCrawledData(List<Map<String, String>> crawledDataList) {
         List<JobPosting> jobPostingsToSave = new ArrayList<>();

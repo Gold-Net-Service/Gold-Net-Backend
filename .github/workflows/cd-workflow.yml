@@ -46,6 +46,11 @@ jobs:
           script: |
             DOCKER_USERNAME="${{ secrets.DOCKER_USERNAME }}"
             DOCKER_IMAGE="${{ secrets.DOCKER_IMAGE }}"
+            MYSQL_USER="${{ secrets.MYSQL_USER }}"
+            MYSQL_PASSWORD="${{ secrets.MYSQL_PASSWORD }}"
+            MYSQL_URL="${{ secrets.MYSQL_URL }}"
+            OPENAI_API_KEY="${{ secrets.OPENAI_API_KEY }}"
+            OPENAI_API_URL="${{ secrets.OPENAI_API_URL }}"
             
             echo "✋🏻 Stopping existing container"
             sudo docker stop gold-net || true
@@ -61,6 +66,12 @@ jobs:
 
             echo "🌱 Running new container"
             sudo docker run -d -p 8080:8080 --name gold-net \
+            -e SPRING_PROFILES_ACTIVE=prod \
+            -e MYSQL_USER="${MYSQL_USER}" \
+            -e MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
+            -e MYSQL_URL="${MYSQL_URL}" \
+            -e OPENAI_API_KEY="${OPENAI_API_KEY}" \
+            -e OPENAI_API_URL="${OPENAI_API_URL}" \
             "${DOCKER_USERNAME}/${DOCKER_IMAGE}"
 
             echo "⏳ Waiting for container to start..."
