@@ -1,5 +1,7 @@
 package com.example.GOLDNet.controller;
 
+import com.example.GOLDNet.domain.JobPosting;
+import com.example.GOLDNet.dto.JobPostingResponse;
 import com.example.GOLDNet.service.CrawlerService;
 import com.example.GOLDNet.service.JobPostingService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -14,14 +17,14 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/postings")
 public class JobsController {
     private final CrawlerService crawlerService;
     private final JobPostingService jobPostingService;
     private final ObjectMapper objectMapper;
 
-    @GetMapping("/crawl-jobs")
+    @GetMapping("/crawl")
     public List<Map<String, String>> crawlJobs() {
-//        System.out.println(crawlerService.crawlJobs());
         return crawlerService.crawlJobs();
     }
 
@@ -41,5 +44,10 @@ public class JobsController {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("An error occurred: " + e.getMessage());
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<JobPostingResponse>> getJobPostings(){
+        return ResponseEntity.ok(jobPostingService.getJobPostings());
     }
 }

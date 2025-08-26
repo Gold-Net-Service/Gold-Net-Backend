@@ -1,6 +1,7 @@
 package com.example.GOLDNet.service;
 
 import com.example.GOLDNet.domain.JobPosting;
+import com.example.GOLDNet.dto.JobPostingResponse;
 import com.example.GOLDNet.repository.JobPostingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,5 +41,26 @@ public class JobPostingService {
             jobPostingRepository.saveAll(jobPostingsToSave);
             System.out.println(jobPostingsToSave.size() + "개의 공고가 성공적으로 저장되었습니다.");
         }
+    }
+
+    public List<JobPostingResponse> getJobPostings() {
+        List<JobPosting> entities = jobPostingRepository.findAll();
+        return entities.stream()
+                .map(entity -> new JobPostingResponse(
+                        entity.getId(),
+                        entity.getTitle(),
+                        entity.getCategory(),
+                        entity.getSalaryInfo(),
+                        entity.getLocation(),
+                        entity.getPreferredAgeGroup(),
+                        entity.getIndustry(),
+                        entity.getBrandName(),
+                        entity.getWorkDays(),
+                        entity.getWorkHours(),
+                        entity.getRecruitmentConditions(),
+                        entity.getWorkRegion(),
+                        entity.getDetailedDescription()
+                ))
+                .collect(Collectors.toList());
     }
 }
